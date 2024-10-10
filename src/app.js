@@ -41,37 +41,30 @@ const httpServer = app.listen(PORT, () => {
 // instanciamos socket.io
 const socketServer = new Server(httpServer)
 
-const log = []
+const logs = []
 socketServer.on('connection', socket => {
     // TODO - Se implemta todo lo relacionado a sockets
 
-    // envio el log para cualquier cliente nuevo que se conecte al canal de socket
-    socket.emit('logs', { log })
-
-
-
-    // // Escucahmos al cliente
-    // socket.on('mensaje_key', data => {
-    //     console.log(data);
-    // })
-
-
-    // envio info al cliente
-    // socket.emit('msg_02', "Hola desde el server")
-
-
-    // socket.broadcast.emit('msg_03', "Este evento es para todos los sockets, menos el socket desde que se emitió el mensaje!")
-
-    // socketServer.emit('msg_04', "Todos los que esten conectados ven este mensaje!!!")
+    // Esto lo ve cualquier user que se conecte
+    socketServer.emit('messageLogs', logs)
 
 
 
     // Ejemplo Chat Basico
-    socket.on('nuevo_mensaje', data => {
-        log.push({ socketid: socket.id, message: data })
+    socket.on('message', data => {
+        logs.push(data)
 
         // Enviar los logs a los clientes
-        socketServer.emit('logs', { log })
+        socketServer.emit('messageLogs', logs)
     });
+
+
+    // hacemos un broadcast del nuevo usuario que se conecta al chat
+    // Notificacion push al resto de los usuarios
+    socket.on('userConnected', data => {
+        console.log(data);
+        socket.broadcast.emit('userConnected', data.user)
+
+    })
 
 })
